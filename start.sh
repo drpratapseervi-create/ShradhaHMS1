@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 set -e
-# go into folder that contains manage.py
+
+# Navigate to the Django project directory that contains manage.py
 cd ShradhaHMS_Full
 
-# ensure static files collected before starting
+# Apply database migrations
+python manage.py migrate --noinput
+
+# Collect static files
 python manage.py collectstatic --noinput
 
-# run gunicorn on the project
-exec gunicorn ShradhaHMS.wsgi --bind 0.0.0.0:$PORT --workers 2 --log-file -
+# Start Gunicorn server
+exec gunicorn ShradhaHMS.wsgi:application --bind 0.0.0.0:$PORT --workers 3

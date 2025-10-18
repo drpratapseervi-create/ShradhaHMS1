@@ -1,1 +1,1 @@
-web: gunicorn ShradhaHMS.wsgi --log-file -
+web: cd ShradhaHMS_Full && gunicorn ShradhaHMS.wsgi --log-file -

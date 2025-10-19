@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
-# Move into the project directory that has manage.py
-cd ShradhaHMS_Full
+# default to port from environment (Railway sets PORT)
+: "${PORT:=8080}"
 
-# Apply database migrations
-python manage.py migrate --noinput
+# Example for a Flask app (adjust module name)
+# If your Flask entry point is app.py and creates 'app' variable:
+python -m gunicorn app:app --bind 0.0.0.0:$PORT
 
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Start Gunicorn server (use python, not python3)
-exec gunicorn ShradhaHMS.wsgi:application --bind 0.0.0.0:$PORT
+# OR if you already have a start command in start.sh, ensure it uses 'python' not 'python3'
+# e.g. python manage.py run --host 0.0.0.0 --port $PORT   (only for dev)

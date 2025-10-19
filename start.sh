@@ -5,10 +5,10 @@ set -e
 cd ShradhaHMS_Full
 
 # Apply database migrations
-python manage.py migrate --noinput
+python3 manage.py migrate --noinput
 
 # Collect static files
-python manage.py collectstatic --noinput
+python3 manage.py collectstatic --noinput
 
 # Start Gunicorn server
-exec gunicorn ShradhaHMS.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+exec python3 -m gunicorn ShradhaHMS.wsgi:application --bind 0.0.0.0:$PORT --workers 3

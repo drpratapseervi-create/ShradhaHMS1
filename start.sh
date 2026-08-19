@@ -1,12 +1,19 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -e
 
-# default to port from environment (Railway sets PORT)
 : "${PORT:=8080}"
 
-# Example for a Flask app (adjust module name)
-# If your Flask entry point is app.py and creates 'app' variable:
-python -m gunicorn app:app --bind 0.0.0.0:$PORT
-
-# OR if you already have a start command in start.sh, ensure it uses 'python' not 'python3'
-# e.g. python manage.py run --host 0.0.0.0 --port $PORT   (only for dev)
+# If a Django wsgi module exists, run Django; else if a Flask app is present run Flask; otherwise exit.
+if [ -f "./ShradhaHMS_Full/shradha/wsgi.py" ]; then
+  echo "Starting Django via gunicorn (shradha.wsgi:application)"
+  python -m gunicorn shradha.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --threads 4 --timeout 120
+elif [ -f "./ShradhaHMS_Full/manage.py" ]; then
+  echo "Django project present (manage.py) — starting via gunicorn"
+  python -m gunicorn shradha.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --threads 4 --timeout 120
+elif [ -f "./ShradhaHMS_Full/app.py" ] || [ -f "./app.py" ]; then
+  echo "Starting Flask via gunicorn (app:app)"
+  python -m gunicorn app:app --bind 0.0.0.0:$PORT --workers 3 --threads 4
+else
+  echo "ERROR: No Django (shradha.wsgi) or Flask (app.py) entrypoint found. Exiting."
+  exit 1
+fi

@@ -23,13 +23,15 @@ if exist ".venv_new\Scripts\activate.bat" (
     exit /b
 )
 
-REM Ensure waitress is installed (Windows-safe)
-python -m pip install --quiet waitress
+REM Stop any server already on port 8000 (old waitress/runserver) so two don't compete
+powershell -NoProfile -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'python.exe' -and ($_.CommandLine -like '*port=8000*' -or $_.CommandLine -like '*runserver*') } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+
 echo Starting HMS server on http://127.0.0.1:8000
 echo DO NOT CLOSE THIS WINDOW
 echo.
 
 REM Open Chrome automatically once the server is up
 start "" cmd /c "timeout /t 3 /nobreak >nul && start chrome http://127.0.0.1:8000"
-python -m waitress --port=8000 ShradhaHMS.wsgi:application
+REM runserver auto-reloads on code changes; 0.0.0.0 keeps it reachable from other PCs on the LAN
+python manage.py runserver 0.0.0.0:8000
 pause
